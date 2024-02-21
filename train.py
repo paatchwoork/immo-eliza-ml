@@ -5,18 +5,20 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.covariance import EllipticEnvelope
 
 from yellowbrick.regressor import ResidualsPlot
 
 def train():
     """Trains a linear regression model on the full dataset and stores output."""
     # Load the data
-    data = pd.read_csv("data/properties.csv")
+    data = pd.read_csv("data/pproc/properties.csv")
 
     # Define features to use
-    num_features = ["nbr_frontages"]
-    fl_features = ["fl_terrace"]
-    cat_features = ["equipped_kitchen"]
+    num_features = ["nbr_bedrooms"]
+    fl_features = ["fl_swimming_pool"]
+    cat_features = ["region"]
 
     # Split the data into features and target
     X = data[num_features + fl_features + cat_features]
@@ -57,6 +59,18 @@ def train():
     )
 
     print(f"Features: \n {X_train.columns.tolist()}")
+
+    # Find the outliers with elliptic envelope
+    # 1 are inliers, -1 are outliers
+    ee = EllipticEnvelope(random_state=0).fit(X_train)
+    X_train['outliers'] = ee.predict(X_train)
+    X_test['outliers'] = ee.predict(X_test)
+
+    # Standardize the numerical values
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    scaler.transform(X_train)
+    scaler.transform(X_test)
 
     # Train the model
     model = LinearRegression()
