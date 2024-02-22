@@ -39,6 +39,16 @@ def train():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.20, random_state=505
     )
+    
+    # Find the outliers with elliptic envelope
+    # 1 are inliers, -1 are outliers
+    for feat in num_features:
+        ee = EllipticEnvelope(random_state=0).fit(X_train[feat])
+        X_train_out = ee.predict(X_train[feat])
+        X_train = X_train.drop(X_train[X_train_out == -1].index).reset_index(drop=True)
+        y_train = y_train.drop(y_train[X_train_out == -1].index).reset_index(drop=True)
+
+
 
     # Impute missing values using SimpleImputer
     imputer = SimpleImputer(strategy="mean")
@@ -76,13 +86,6 @@ def train():
     scaler.fit(X_train)
     scaler.transform(X_train)
     scaler.transform(X_test)
-
-    # Find the outliers with elliptic envelope
-    # 1 are inliers, -1 are outliers
-    #ee = EllipticEnvelope(random_state=0).fit())
-    #X_train_out = ee.predict(X_train)
-    #X_train = X_train.drop(X_train[X_train_out == -1].index).reset_index(drop=True)
-    #y_train = y_train.drop(y_train[X_train_out == -1].index).reset_index(drop=True)
 
     # Train the model
     model = LinearRegression()
