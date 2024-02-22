@@ -1,7 +1,11 @@
 import joblib
 import pandas as pd
 from sklearn.impute import SimpleImputer
+
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import PolynomialFeatures
+
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
@@ -16,9 +20,16 @@ def train():
     data = pd.read_csv("data/pproc/properties.csv")
 
     # Define features to use
-    num_features = ["nbr_bedrooms"]
-    fl_features = ["fl_swimming_pool"]
-    cat_features = ["region"]
+    num_features = ['nbr_bedrooms',#, 
+            'total_area_sqm',#, 
+            'latitude', 
+            'surface_land_sqm', 
+            'nbr_frontages', 
+            'terrace_sqm', 
+            'garden_sqm'
+            ]
+    fl_features = ['fl_swimming_pool',]
+    cat_features = ['region','property_type' , 'subproperty_type']
 
     # Split the data into features and target
     X = data[num_features + fl_features + cat_features]
@@ -60,24 +71,32 @@ def train():
 
     print(f"Features: \n {X_train.columns.tolist()}")
 
-    # Find the outliers with elliptic envelope
-    # 1 are inliers, -1 are outliers
-    ee = EllipticEnvelope(random_state=0).fit(X_train)
-    X_train['outliers'] = ee.predict(X_train)
-    X_test['outliers'] = ee.predict(X_test)
-
     # Standardize the numerical values
     scaler = StandardScaler()
     scaler.fit(X_train)
     scaler.transform(X_train)
     scaler.transform(X_test)
 
+    # Find the outliers with elliptic envelope
+    # 1 are inliers, -1 are outliers
+    #ee = EllipticEnvelope(random_state=0).fit())
+    #X_train_out = ee.predict(X_train)
+    #X_train = X_train.drop(X_train[X_train_out == -1].index).reset_index(drop=True)
+    #y_train = y_train.drop(y_train[X_train_out == -1].index).reset_index(drop=True)
+
     # Train the model
     model = LinearRegression()
+    #model = LogisticRegression()
     model.fit(X_train, y_train)
 
-    # Evaluate the model
+    #poly = PolynomialFeatures(degree=3, include_bias=False)
+    #poly_features = poly.fit_transform(X_train)
+    #model = LinearRegression()
+    #model.fit(poly_features, y_train)
+    #model = PolynomialFeatures()
 
+
+    # Evaluate the model
     # R2 evaluation
     train_score = r2_score(y_train, model.predict(X_train))
     test_score = r2_score(y_test, model.predict(X_test))
@@ -102,7 +121,7 @@ def train():
         "enc": enc,
         "model": model,
     }
-    joblib.dump(artifacts, "models/artifacts.joblib")
+    joblib.dump(artifacts, f"models/{model_name[:-2]}.joblib")
 
 
 if __name__ == "__main__":

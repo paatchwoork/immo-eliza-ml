@@ -2,6 +2,9 @@ import click
 import joblib
 import pandas as pd
 
+from sklearn.linear_model import LinearRegression 
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import PolynomialFeatures
 
 @click.command()
 @click.option("-i", "--input-dataset", help="path to input .csv dataset", required=True)
@@ -20,7 +23,8 @@ def predict(input_dataset, output_dataset):
     ### -------------------------------------------------- ###
 
     # Load the model artifacts using joblib
-    artifacts = joblib.load("models/artifacts.joblib")
+    model_name = 'LinearRegression'
+    artifacts = joblib.load(f"models/{model_name}.joblib")
 
     # Unpack the artifacts
     num_features = artifacts["features"]["num_features"]

@@ -22,12 +22,17 @@ cat_features = ['property_type',
         'epc',
         'heating_type']
 
+# encode categorical into numerical
 le = LabelEncoder()
 for column in cat_features:
-    print(column)
     data[column] = le.fit_transform(data[column])
-    print(data[column])
 
 plt.figure()
-sns.heatmap(data.corr(), cmap="coolwarm")
-plt.show()
+corrmap = data.corr()[['price']]
+
+#sns.heatmap(corrmap.sort_values(by='price',ascending=False), annot=True)
+print(corrmap.sort_values(by='price', ascending=False).head(11).index)
+#fig, ax = plt.subplots()
+#ax.imshow(corrmap)
+#sns.heatmap(data.corr()['price'], cmap="coolwarm")
+#plt.show()
