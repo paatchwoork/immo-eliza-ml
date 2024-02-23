@@ -124,7 +124,7 @@ def train():
     # Train the model
     #model = LinearRegression()
     #model = LogisticRegression()
-    model = Lasso()
+    model = Lasso(alpha = 1000, selection = 'random')
     model.fit(X_train, y_train)
 
     #poly = PolynomialFeatures(degree=2, include_bias=False)
