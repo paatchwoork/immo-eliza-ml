@@ -2,10 +2,6 @@ import click
 import joblib
 import pandas as pd
 
-from sklearn.linear_model import LinearRegression 
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import PolynomialFeatures
-
 @click.command()
 @click.option("-i", "--input-dataset", help="path to input .csv dataset", required=True)
 @click.option(
@@ -23,7 +19,8 @@ def predict(input_dataset, output_dataset):
     ### -------------------------------------------------- ###
 
     # Load the model artifacts using joblib
-    model_name = 'LinearRegression'
+    #model_name = 'LinearRegression'
+    model_name = 'Lasso'
     artifacts = joblib.load(f"models/{model_name}.joblib")
 
     # Unpack the artifacts
@@ -37,6 +34,17 @@ def predict(input_dataset, output_dataset):
     # Extract the used data
     data = data[num_features + fl_features + cat_features]
 
+
+    # Removing the outliers
+    mult = 20
+    for feat in num_features:
+        Q1 = data[feat].quantile(0.10)
+        Q3 = data[feat].quantile(0.90)
+        IQR = Q3 - Q1
+        outliers = (data[feat] < (Q1-mult*IQR)) | (data[feat] > (Q3+mult*IQR))
+        data[feat] = data[feat][~outliers]
+
+
     # Apply imputer and encoder on data
     data[num_features] = imputer.transform(data[num_features])
     data_cat = enc.transform(data[cat_features]).toarray()
@@ -49,6 +57,9 @@ def predict(input_dataset, output_dataset):
         ],
         axis=1,
     )
+
+    # Drop the NA
+    data = data.dropna()
 
     # Make predictions
     predictions = model.predict(data)
