@@ -11,7 +11,8 @@ import pandas as pd
     help="full path where to store predictions",
     required=True,
 )
-def predict(input_dataset, output_dataset):
+@click.option("-m", "--model-name", help="name of the model : LR for linear regression and LA for Lasso", required=True)
+def predict(input_dataset, output_dataset, model_name):
     """Predicts house prices from 'input_dataset', stores it to 'output_dataset'."""
     ### -------- DO NOT TOUCH THE FOLLOWING LINES -------- ###
     # Load the data
@@ -20,7 +21,14 @@ def predict(input_dataset, output_dataset):
 
     # Load the model artifacts using joblib
     #model_name = 'LinearRegression'
-    model_name = 'Lasso'
+
+    if model_name == 'LA':
+        model_name = 'Lasso'
+    elif model_name == 'LR':
+        model_name = 'LinearRegression'
+    else:
+        print(f"The model {model_name} has not been implemented yet !")
+
     artifacts = joblib.load(f"models/{model_name}.joblib")
 
     # Unpack the artifacts

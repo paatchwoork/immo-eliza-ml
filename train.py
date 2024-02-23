@@ -3,11 +3,7 @@ import pandas as pd
 from sklearn.impute import SimpleImputer
 
 from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso
-from sklearn.linear_model import Ridge
 
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
@@ -20,7 +16,7 @@ from yellowbrick.regressor import ResidualsPlot
 def train():
     """Trains a linear regression model on the full dataset and stores output."""
     # Load the data
-    data = pd.read_csv("data/pproc/properties.csv")
+    data = pd.read_csv("data/properties.csv")
 
     # Define features to use
     num_features = ['nbr_bedrooms', 
@@ -110,7 +106,7 @@ def train():
         axis=1,
     )
 
-    print(f"Features: \n {X_train.columns.tolist()}")
+    print("Training the model on the train dataset...")
 
     # Standardize the numerical values
     scaler = StandardScaler()
@@ -123,17 +119,8 @@ def train():
 
     # Train the model
     #model = LinearRegression()
-    #model = LogisticRegression()
     model = Lasso(alpha = 1000, selection = 'random')
     model.fit(X_train, y_train)
-
-    #poly = PolynomialFeatures(degree=2, include_bias=False)
-    #poly_features = poly.fit_transform(X_train)
-    #model = LinearRegression()
-    #model.fit(poly_features, y_train)
-    #model.fit(poly_features, y_train)
-    #model = PolynomialFeatures()
-
 
     # Evaluate the model
     # R2 evaluation
